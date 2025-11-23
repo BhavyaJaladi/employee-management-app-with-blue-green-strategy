@@ -5,9 +5,14 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url:'https://github.com/siddharthapeddi/employee-management-app-with-blue-green-strategy.git'
-
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/siddarthapeddi/employee-management-app-with-blue-green-strategy.git',
+                        credentialsId: '5cc29cec-fb86-42dd-840b-d6b76b053f81'
+                    ]]
+                ])
             }
         }
 
@@ -40,15 +45,14 @@ pipeline {
                 expression { return fileExists('docker/Dockerfile') }
             }
             steps {
-                echo "Docker build disabled on Windows Jenkins. Use Linux agent for real builds."
+                echo "Docker build requires Linux — skipping on Windows."
             }
         }
 
         stage('Blue-Green Deployment (Simulated)') {
             steps {
-                echo "Blue-Green deploy disabled on Windows. Requires Linux + bash."
+                echo "Blue-Green deploy disabled — requires Linux + Docker Swarm."
             }
         }
     }
 }
-
