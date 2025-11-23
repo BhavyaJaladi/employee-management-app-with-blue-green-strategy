@@ -3,6 +3,7 @@ pipeline {
 
     tools {
         maven 'Maven-3.9.11'
+        nodejs 'Node-24'
     }
 
     stages {
@@ -14,7 +15,7 @@ pipeline {
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[
                         url: 'https://github.com/siddarthapeddi/employee-management-app-with-blue-green-strategy.git',
-                        credentialsId: '5cc29cec-fb86-42dd-840b-d6b76b053f81'
+                        credentialsId: 'github-pat'
                     ]]
                 ])
             }
@@ -22,19 +23,17 @@ pipeline {
 
         stage('Backend Build') {
             steps {
-                echo "🔧 Using Maven from Jenkins tool configuration"
-                withMaven(maven: 'Maven-3.9.11') {
-                    dir('backend') {
-                        bat 'mvn -version'
-                        bat 'mvn clean package -DskipTests'
-                    }
+                echo "🔧 Building Backend with Maven"
+                dir('backend') {
+                    bat 'mvn -version'
+                    bat 'mvn clean package -DskipTests'
                 }
             }
         }
 
         stage('Frontend Build') {
             steps {
-                echo "🌐 Running frontend build"
+                echo "🌐 Building Frontend"
                 dir('frontend') {
                     bat 'npm install'
                     bat 'npm run build'
@@ -49,18 +48,16 @@ pipeline {
             }
         }
 
-        stage('Docker Build (Optional)') {
-            when {
-                expression { return false }  // Always skip on Windows
-            }
+        stage('Docker Build (Skipped)') {
+            when { expression { false } }
             steps {
-                echo "🐳 Docker build skipped on Windows."
+                echo "🐳 Docker skipped on Windows"
             }
         }
 
         stage('Blue-Green Deployment (Simulated)') {
             steps {
-                echo "🔵🟢 Blue-Green deploy skipped (Linux required)."
+                echo "🔵🟢 Blue-Green deploy skipped"
             }
         }
     }
