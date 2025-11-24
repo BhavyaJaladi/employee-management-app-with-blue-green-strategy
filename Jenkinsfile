@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    options {
-        skipDefaultCheckout(true)
-    }
-
     tools {
         maven 'Maven-3.9.11'
         nodejs 'Node-24'
@@ -19,43 +15,41 @@ pipeline {
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[
                         url: 'https://github.com/siddarthapeddi/employee-management-app-with-blue-green-strategy.git',
-                        credentialsId: 'github-token'
+                        credentialsId: 'github-pat'
                     ]]
                 ])
-                echo "✔ Checkout done"
             }
         }
 
         stage('Backend Build') {
             steps {
-                echo "🔧 Building backend using Maven"
+                echo "🏗 Building Backend using Maven"
                 dir('backend') {
-                    bat 'mvn -version'
-                    bat 'mvn clean package -DskipTests'
+                    bat "${tool 'Maven-3.9.11'}/bin/mvn clean package -DskipTests"
                 }
             }
         }
 
         stage('Frontend Build') {
             steps {
-                echo "🌐 Building frontend"
+                echo "🌐 Building Frontend using Node"
                 dir('frontend') {
-                    bat 'npm install'
-                    bat 'npm run build'
+                    bat "npm install"
+                    bat "npm run build"
                 }
             }
         }
 
-        stage('Archive Build Artifacts') {
+        stage('Archive Artifacts') {
             steps {
-                archiveArtifacts artifacts: 'backend/target/*.jar', fingerprint: true
-                archiveArtifacts artifacts: 'frontend/dist/**', fingerprint: true
+                archiveArtifacts artifacts: 'backend/target/*.jar'
+                archiveArtifacts artifacts: 'frontend/dist/**'
             }
         }
 
-        stage('Blue-Green Deployment (Skipped)') {
+        stage('Deploy (Simulated)') {
             steps {
-                echo "🔵🟢 Blue-Green deploy skipped (Windows)"
+                echo "Blue-Green Deployment skipped on Windows machine"
             }
         }
     }
